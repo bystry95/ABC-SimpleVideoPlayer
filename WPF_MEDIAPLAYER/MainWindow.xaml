@@ -1,0 +1,153 @@
+﻿<Window x:Class="WPF_MEDIAPLAYER.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_MEDIAPLAYER"
+        mc:Ignorable="d"
+        Loaded="Window_Loaded"
+        Title="ABC - Simple Video Player" Width="800" Height="auto" MinWidth="670"
+        Icon="img\icon_title.png"
+        SizeToContent="Height"
+        >
+    <Window.Resources>
+        <local:SecondsTimeSpanConverter x:Key="SecondsToTimeSpanConverter" />
+    </Window.Resources>
+
+    <Window.CommandBindings>
+        <CommandBinding Command="local:CustomCommands.Play"
+                        CanExecute="CommandBinding_CanExecuted_FileLoaded"
+                        Executed="CustomCommand_Play_Executed"
+                        />
+        <CommandBinding Command="local:CustomCommands.Stop"
+                        CanExecute="CommandBinding_CanExecuted_FileLoaded"
+                        Executed="CustomCommand_Stop_Executed"
+                        />
+        <CommandBinding Command="local:CustomCommands.Fullscreen"
+                        CanExecute="CustomCommand_CanExecuted_Always"
+                        Executed="CustomCommand_Fullscreen_Executed"
+                        />
+        <CommandBinding Command="local:CustomCommands.Open"
+                        CanExecute="CustomCommand_CanExecuted_Always"
+                        Executed="CommandBinding_Open_Executed"
+                        />
+        <CommandBinding Command="local:CustomCommands.Close"
+                        CanExecute="CommandBinding_CanExecuted_FileLoaded"
+                        Executed="CommandBinding_Close_Executed"
+                        />
+        <CommandBinding Command="local:CustomCommands.Exit"
+                        CanExecute="CustomCommand_CanExecuted_Always"
+                        Executed="CommandBinding_Exit_Executed"
+                        />
+        <CommandBinding Command="local:CustomCommands.Help"
+                        CanExecute="CustomCommand_CanExecuted_Always"
+                        Executed="CommandBinding_Help_Executed"
+                        />
+        <CommandBinding Command="local:CustomCommands.VideoClip10Forward"
+                        CanExecute="CommandBinding_CanExecuted_FileLoaded"
+                        Executed="CommandBinding_VideoClip10Forward_Executed"
+                        />
+        <CommandBinding Command="local:CustomCommands.VideoClip10Backward"
+                        CanExecute="CommandBinding_CanExecuted_FileLoaded"
+                        Executed="CommandBinding_VideoClip10Backward_Executed"
+                        />
+    </Window.CommandBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" MaxHeight="20"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" MaxHeight="40"/>
+        </Grid.RowDefinitions>
+        
+        <Menu Grid.Row="0" x:Name="TopScreenMenu">
+            <MenuItem Header="File">
+                <MenuItem Header="Open" Command="local:CustomCommands.Open">
+                    <MenuItem.Icon>
+                        <Image Source="img\icon_open.png" Width="16"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Close" Command="local:CustomCommands.Close">
+                    <MenuItem.Icon>
+                        <Image Source="img\icon_close.png" Width="16"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Exit" Command="local:CustomCommands.Exit">
+                    <MenuItem.Icon>
+                        <Image Source="img\icon_exit.png" Width="16"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="About" Command="local:CustomCommands.Help">
+                    <MenuItem.Icon>
+                        <Image Source="img\icon_help.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <MediaElement Source="{x:Null}" 
+                      Grid.Row="1"
+                      LoadedBehavior="Manual"
+                      Volume="1"
+                      x:Name="videoClip"
+                      MediaFailed="videoClip_MediaFailed"
+                      MediaOpened="videoClip_MediaOpened"
+                      MediaEnded="videoClip_MediaEnded"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      >
+            <MediaElement.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Fullscreen" Command="local:CustomCommands.Fullscreen" InputGestureText="F12" IsEnabled="True" />
+                </ContextMenu>
+            </MediaElement.ContextMenu>
+        </MediaElement>
+
+        <WrapPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" x:Name="BottomScreenMenu">
+            <ToggleButton x:Name="playtoggle" Command="local:CustomCommands.Play">
+                <ToggleButton.Content>
+                    <Image Source="img\icon_play.png" Width="{x:Static local:MainWindow.iconSize}"/>
+                </ToggleButton.Content>
+            </ToggleButton>
+            <Button Command="local:CustomCommands.Stop">
+                <Button.Content>
+                    <Image Source="img\icon_stop.png" Width="{x:Static local:MainWindow.iconSize}"/>
+                </Button.Content>
+            </Button>
+            <Button Click="VideoClipPauseHandler">
+                <Button.Content>
+                    <Image Source="img\icon_pause.png" Width="{x:Static local:MainWindow.iconSize}"/>
+                </Button.Content>
+            </Button>
+            <Button Click="VideoClipMuteHandler">
+                <Button.Content>
+                    <Image Source="img\icon_mute.png" Width="{x:Static local:MainWindow.iconSize}"/>
+                </Button.Content>
+            </Button>
+            <Button Command="local:CustomCommands.VideoClip10Backward">
+                <Button.Content>
+                    <Image Source="img\icon_10_back.png" Width="{x:Static local:MainWindow.iconSize}"/>
+                </Button.Content>
+            </Button>
+            <Button Command="local:CustomCommands.VideoClip10Forward">
+                <Button.Content>
+                    <Image Source="img\icon_10_forward.png" Width="{x:Static local:MainWindow.iconSize}"/>
+                </Button.Content>
+            </Button>
+            <Label Content="Volume: " Margin="0,4,0,0"/>
+            <Slider x:Name="slider_volume" Width="75" Value="{Binding ElementName=videoClip, Path=Volume}" Maximum="1" Margin="0,7,0,0"/>
+            <Label Content="Time: " Margin="0,4,0,0"/>
+            <Slider x:Name="slider_time" Width="200" 
+                    ValueChanged="slider_time_ValueChanged"
+                    Thumb.DragStarted="slider_time_DragStarted"
+                    Thumb.DragCompleted="slider_time_DragCompleted"
+                    Margin="0,7,0,0"/>
+            <Label Margin="0,4,0,0" x:Name="label_timeOfWatchedVideo" Content="{Binding ElementName=slider_time, Path=Value, Converter={StaticResource SecondsToTimeSpanConverter}}"/>
+            <Label Content="/" Margin="0,4,0,0"/>
+            <Label x:Name="label_totalTime" Margin="0,4,0,0"/>
+        </WrapPanel>
+    </Grid>
+</Window>
